@@ -2,6 +2,7 @@ import os
 import re
 import requests
 
+
 def list_url(url, function_getHtml, include, exclude):
     '''
         Listing URL in html code with some option
@@ -56,7 +57,9 @@ class CurrentTask(object):
         ar = [str(ord(i)) for i in str(value)]
         temp = sorted([int(''.join(ar)), pnum])
         temp = str(temp[0]/temp[1])
-        return temp.replace('e-', '')[-9:]
+        return temp\
+                .replace('e-', '')\
+                .replace('.', '')
 
 
     def hash_object(self, object):
@@ -72,7 +75,7 @@ class CurrentTask(object):
 class Spider(CurrentTask):
 
     '''
-        [+] Basicly, it's just a recursion spider
+        [-] Basicly, it's just a recursion spider!
     '''
 
     config = {
@@ -80,7 +83,7 @@ class Spider(CurrentTask):
             'include': ['.'],
             'exclude': []
     }
-    folder_content = 'data'
+    folder_content = "spider's house"
 
     def __init__(self, function_process_url, file_store_process):
         super().__init__(file_store_process)
@@ -96,8 +99,8 @@ class Spider(CurrentTask):
             pass
         with open(
                 './{0}/{1}'.format(
-                            self.folder_content,
-                            url.replace('/', '')
+                    self.folder_content,
+                    url.replace('/', '')
                 ),'w'
         ) as f:
             f.write(re.sub('(<[^<>]+>)', '', html_code))
@@ -105,7 +108,7 @@ class Spider(CurrentTask):
         return html_code
 
 
-    def deep(self, url):
+    def bit(self, url):
         for url in self.config['list_url'](
                 url,
                 self.get_html,
@@ -115,4 +118,21 @@ class Spider(CurrentTask):
             if not self.isdone(url):
                 self.function(url)
                 self.add(url)
-                self.deep(url)
+                self.bit(url)
+
+
+    def find_something_in_spiderhouse(self, regex_or_word):
+        '''
+            [-] I have not optimized for multiline yet!
+        '''
+
+        def recursion(link):
+            if os.path.isfile(link):
+                for line in open(link, encoding='latin1'):
+                    result = re.search(f'.{{0,9}}{regex_or_word}.{{0,9}}', line)
+                    if result:
+                        print(f'found in {link}:', result.group())
+            else:
+                for ld in os.listdir(link):
+                    recursion(f'{link}/{ld}')
+        recursion(self.folder_content)
