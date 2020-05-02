@@ -1,3 +1,5 @@
+from colorama import Fore,Style
+
 import os
 import re
 import requests
@@ -124,7 +126,9 @@ class Spider(CurrentTask):
                 for line in open(link, encoding='latin1'):
                     result = re.search(f'.{{0,9}}{regex_or_word}.{{0,9}}', line)
                     if result:
-                        print(f'found in {link}:', result.group())
+                        print(
+                            f'found in {Fore.GREEN+link+Style.RESET_ALL}: ... {Fore.BLUE+result.group()+Style.RESET_ALL} ...'
+                        )
             else:
                 for ld in os.listdir(link):
                     recursion(f'{link}/{ld}')
