@@ -1,5 +1,5 @@
-var header = "\n\n\n\n\n\n\n\n\n";
-var paragraph_splitting_key = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+var header = "\t\t\t";
+var paragraph_splitting_key = "\t\t\t\t\t\t";
 var list = document.getElementsByClassName("zxU94d gws-plugins-horizon-jobs__tl-lvc")[0];
 var post = {
     name: "BjJfJf PUpOsf",
@@ -26,10 +26,16 @@ function export_string(content) {
     window.open(encodedUri);
 }
 
-async function main(page) {
-    for (var i=0; i<page; i++) {
-        scroll_down(list);
-        await sleep(3000);
+async function main() {
+    while (true) {
+        recu = String(document.documentElement.innerText);
+        for (var i=0; i<50; i++) {
+            scroll_down(list);
+            await sleep(300x);
+        }
+        if (recu == String(document.documentElement.innerText)) {
+            break;
+        }
     }
     n = get_element(post.name);
     c = get_element(post.content);
@@ -42,3 +48,4 @@ async function main(page) {
     }
     export_string(data);
 }
+main();
