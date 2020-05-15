@@ -31,7 +31,7 @@ async function main() {
         recu = String(document.documentElement.innerText);
         for (var i=0; i<50; i++) {
             scroll_down(list);
-            await sleep(300x);
+            await sleep(300);
         }
         if (recu == String(document.documentElement.innerText)) {
             break;
