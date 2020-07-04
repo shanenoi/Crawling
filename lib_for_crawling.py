@@ -123,11 +123,13 @@ class Spider(CurrentTask):
 
         def recursion(link):
             if os.path.isfile(link):
-                for line in open(link, encoding='latin1'):
+                for num_line, line in enumerate(open(link, encoding='latin1')):
                     result = re.search(f'.{{0,9}}{regex_or_word}.{{0,9}}', line)
                     if result:
                         print(
-                            f'found in {Fore.GREEN+link+Style.RESET_ALL}: ... {Fore.BLUE+result.group()+Style.RESET_ALL} ...'
+                                f'found in line: {num_line+1} ' +
+                                f'of {Fore.GREEN+link+Style.RESET_ALL}: '+
+                                f'{Fore.BLUE}... {result.group()} ...{Style.RESET_ALL}'
                         )
             else:
                 for ld in os.listdir(link):
