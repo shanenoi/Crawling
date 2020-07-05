@@ -12,12 +12,14 @@ def list_url(url, function_get_html, include, exclude):
 
     def fix_url(pattern_url, link):
         fixed = None
-        temp = re.findall('([^:]+://[^/]+)', pattern_url)[0]
-        if link.startswith('/'):
-            fixed = temp + link
+
+        website = re.findall("([^:]+://[^/]+)", pattern_url)[0]
+        if link.startswith("/"):
+            fixed = website + link
         else:
-            fixed = temp + '/' + link
-        open("abc", "a").write(f"{link}->{fixed}\n")
+            fixed = website + "/" + link
+
+        open("fixed_urls", "a").write(f"{link}->{fixed}\n")
         return fixed
 
     html_code = function_get_html(url)
@@ -31,7 +33,7 @@ def list_url(url, function_get_html, include, exclude):
     ]
     return [
         link
-        if link.startswith('http') else fix_url(url, link)
+        if link.startswith("http") else fix_url(url, link)
         for link in urls
     ]
 
@@ -47,9 +49,9 @@ class CurrentTask(object):
 
     def __init__(self, file_name):
         try:
-            self.file = open(file_name, 'r+')
+            self.file = open(file_name, "r+")
         except FileNotFoundError:
-            self.file = open(file_name, 'w+')
+            self.file = open(file_name, "w+")
 
     def add(self, container):
         self.file.write(
@@ -59,11 +61,11 @@ class CurrentTask(object):
     @staticmethod
     def __hash(value, p_num=3264):
         ar = [str(ord(i)) for i in str(value)]
-        temp = sorted([int(''.join(ar)), p_num])
+        temp = sorted([int("".join(ar)), p_num])
         temp = str(temp[0] / temp[1])
         return temp \
-            .replace('e-', '') \
-            .replace('.', '')
+            .replace("e-", "") \
+            .replace(".", "")
 
     def hash_object(self, value):
         return self.__hash(str(
@@ -76,18 +78,20 @@ class CurrentTask(object):
 
 
 class Spider(CurrentTask):
+
     """
         [-] Basically, it's just a recursion spider!
     """
 
-    config = {
-        'list_url': list_url,
-        'include': ['/'],
-        'exclude': []
+    config_url = {
+        "list_url": list_url,
+        "include": ["/"],
+        "exclude": ["facebook.", "google.", "messenger.", "youtube."]
     }
     folder_content = "spider's house"
+    deep_level = 5 # avoid going deeper and deeper of a url
 
-    def __init__(self, function_process_url, file_store_process):
+    def __init__(self, function_process_url, file_store_process="crawled_urls"):
         super().__init__(file_store_process)
         self.function = function_process_url
 
@@ -97,32 +101,33 @@ class Spider(CurrentTask):
             html_code = requests.get(url).text
         except requests.exceptions.ConnectionError:
             pass
-        '''This code will save html code to file'''
+        """This code will save html code to file"""
         try:
             os.mkdir(self.folder_content)
         except FileExistsError:
             pass
         with open(
-                './{0}/{1}'.format(
+                "./{0}/{1}".format(
                     self.folder_content,
-                    url.replace('/', '')
-                ), 'w'
+                    url.replace("/", "")
+                ), "w"
         ) as f:
-            f.write(re.sub('(<[^<>]+>)', '', html_code))
-        '''[+]'''
+            f.write(re.sub("(<[^<>]+>)", "", html_code))
+        """[+]"""
         return html_code
 
     def bit(self, url):
-        for url in set(self.config['list_url'](
+        for url in set(self.config_url["list_url"](
                 url,
                 self.get_html,
-                self.config['include'],
-                self.config['exclude']
+                self.config_url["include"],
+                self.config_url["exclude"]
         )):
-            if not self.isdone(url):
+            if not self.isdone(url) and self.deep_level!=0:
                 self.function(url)
                 self.add(url)
                 self.bit(url)
+                self.deep_level -= 1
 
     def find_something_in_spiderhouse(self, regex_or_word):
         """
@@ -131,16 +136,16 @@ class Spider(CurrentTask):
 
         def recursion(link):
             if os.path.isfile(link):
-                for num_line, line in enumerate(open(link, encoding='latin1')):
-                    result = re.search(f'.{{0,9}}{regex_or_word}.{{0,9}}', line)
+                for num_line, line in enumerate(open(link, encoding="latin1")):
+                    result = re.search(f".{{0,9}}{regex_or_word}.{{0,9}}", line)
                     if result:
                         print(
-                                f'found in line: {num_line+1} ' +
-                                f'of {Fore.GREEN+link+Style.RESET_ALL}: '+
-                                f'{Fore.BLUE}... {result.group()} ...{Style.RESET_ALL}'
+                                f"found in line: {num_line+1} " +
+                                f"of {Fore.GREEN+link+Style.RESET_ALL}: "+
+                                f"{Fore.BLUE}... {result.group()} ...{Style.RESET_ALL}"
                         )
             else:
                 for ld in os.listdir(link):
-                    recursion(f'{link}/{ld}')
+                    recursion(f"{link}/{ld}")
 
         recursion(self.folder_content)
