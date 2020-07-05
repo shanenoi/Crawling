@@ -88,7 +88,7 @@ class Spider(CurrentTask):
         "include": ["/"],
         "exclude": ["facebook.", "google.", "messenger.", "youtube."]
     }
-    folder_content = "spider's house"
+    folder_content = "cocoon_of_spider"
     deep_level = 5 # avoid going deeper and deeper of a url
 
     def __init__(self, function_process_url, file_store_process="crawled_urls"):
