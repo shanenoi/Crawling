@@ -11,18 +11,22 @@ def list_url(url, function_get_html, include, exclude):
     """
 
     def fix_url(pattern_url, link):
+        fixed = None
+        temp = re.findall('([^:]+://[^/]+)', pattern_url)[0]
         if link.startswith('/'):
-            return pattern_url + link
+            fixed = temp + link
         else:
-            return re.findall('([^:]+://[^/]+)', pattern_url)[0] + '/' + link
+            fixed = temp + '/' + link
+        open("abc", "a").write(f"{link}->{fixed}\n")
+        return fixed
 
     html_code = function_get_html(url)
 
     urls = [
         i for i in re.findall('href="([^" ]+)"', html_code)
         if (
-                True not in [j in i for j in exclude] and
-                True in [j in i for j in include]
+                not any([j in i for j in exclude]) and
+                any([j in i for j in include])
         )
     ]
     return [
@@ -78,7 +82,7 @@ class Spider(CurrentTask):
 
     config = {
         'list_url': list_url,
-        'include': ['.'],
+        'include': ['/'],
         'exclude': []
     }
     folder_content = "spider's house"
@@ -88,7 +92,11 @@ class Spider(CurrentTask):
         self.function = function_process_url
 
     def get_html(self, url):
-        html_code = requests.get(url).text
+        html_code = ""
+        try:
+            html_code = requests.get(url).text
+        except requests.exceptions.ConnectionError:
+            pass
         '''This code will save html code to file'''
         try:
             os.mkdir(self.folder_content)
@@ -105,12 +113,12 @@ class Spider(CurrentTask):
         return html_code
 
     def bit(self, url):
-        for url in self.config['list_url'](
+        for url in set(self.config['list_url'](
                 url,
                 self.get_html,
                 self.config['include'],
                 self.config['exclude']
-        ):
+        )):
             if not self.isdone(url):
                 self.function(url)
                 self.add(url)
